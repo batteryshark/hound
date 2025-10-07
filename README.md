@@ -190,12 +190,6 @@ Examples:
 ./hound.py graph build myaudit --auto \
   --files "src/A.sol,src/B.sol,src/utils/Lib.sol"
 
-# Generate a whitelist automatically (recommended for larger projects)
-python whitelist_builder.py \
-  --input /path/to/repo \
-  --limit-loc 20000 \
-  --output whitelists/myaudit
-
 # Use the generated list (newline-separated) as a comma list for --files
 ./hound.py graph build myaudit --auto \
   --files "$(tr '\n' ',' < whitelists/myaudit | sed 's/,$//')"
