@@ -267,12 +267,15 @@ def build(
             # Animated progress bar during graph construction
             iteration_total = max_iterations
             if progress_console.is_terminal and not quiet:
+                progress_render_console = (
+                    progress_console if not use_live else Console(file=sys.stderr)
+                )
                 with Progress(
                     SpinnerColumn(),
                     TextColumn("[progress.description]{task.description}"),
                     BarColumn(),
                     TaskProgressColumn(),
-                    console=progress_console,
+                    console=progress_render_console,
                     transient=True,
                 ) as progress:
                     task = progress.add_task(f"Constructing graphs (iteration 0/{iteration_total})...", total=iteration_total, completed=0)
