@@ -2053,23 +2053,6 @@ DO NOT include any text before or after the JSON object."""
         except Exception as e:
             return {'status': 'error', 'error': str(e)}
     
-    
-    def _guess_vuln_type(self, text: str) -> str:
-        """Guess vulnerability type from description."""
-        text_lower = text.lower()
-        if 'reentran' in text_lower:
-            return 'reentrancy'
-        elif 'overflow' in text_lower or 'underflow' in text_lower:
-            return 'integer_overflow'
-        elif 'auth' in text_lower or 'access' in text_lower or 'permission' in text_lower:
-            return 'access_control'
-        elif 'dos' in text_lower or 'denial' in text_lower:
-            return 'denial_of_service'
-        elif 'inject' in text_lower:
-            return 'injection'
-        else:
-            return 'security_issue'
-    
     def _form_hypothesis(self, params: dict) -> dict:
         """Form a new hypothesis."""
         from .concurrent_knowledge import Hypothesis
