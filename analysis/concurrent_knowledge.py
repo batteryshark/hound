@@ -5,7 +5,6 @@ This module provides thread-safe, file-based storage for knowledge graphs and
 vulnerability hypotheses, allowing multiple agents to collaborate on analysis.
 """
 
-import portalocker
 import hashlib
 import json
 import threading
@@ -16,6 +15,8 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+import portalocker
 
 # ============================================================================
 # Base Concurrent Store

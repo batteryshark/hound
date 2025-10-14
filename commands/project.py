@@ -225,8 +225,9 @@ class ProjectManager:
         if not config_file.exists():
             return None
         
-        import portalocker
         import time
+
+        import portalocker
         
         # Retry logic for reading JSON with file locking
         max_retries = 5
