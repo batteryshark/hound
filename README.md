@@ -42,9 +42,8 @@ Hound is a Language-agnostic AI auditor that autonomously builds and refines ada
 
 ### Links
 
-- [Paper](https://zenodo.org/records/17221190)
-- [Original blog post](https://muellerberndt.medium.com/unleashing-the-hound-how-ai-agents-find-deep-logic-bugs-in-any-codebase-64c2110e3a6f)
-- [Smart contract audit benchmarks datasets and tooling](https://github.com/scabench-org/scabench)
+- [Paper](https://arxiv.org/html/2510.09633v1)
+- [Walkthrough](https://muellerberndt.medium.com/hunting-for-security-bugs-in-code-with-ai-agents-a-full-walkthrough-a0dc24e1adf0)
 
 ## Installation
 
