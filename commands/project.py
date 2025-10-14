@@ -225,7 +225,7 @@ class ProjectManager:
         if not config_file.exists():
             return None
         
-        import fcntl
+        import portalocker
         import time
         
         # Retry logic for reading JSON with file locking
@@ -235,9 +235,9 @@ class ProjectManager:
                 with open(config_file) as f:
                     # Try to get a shared lock for reading
                     try:
-                        fcntl.flock(f.fileno(), fcntl.LOCK_SH | fcntl.LOCK_NB)
+                        portalocker.lock(f.fileno(), portalocker.LOCK_SH | portalocker.LOCK_NB)
                         content = f.read()
-                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                        portalocker.unlock(f.fileno())
                     except OSError:
                         # If we can't get lock, just read anyway
                         content = f.read()
@@ -266,9 +266,9 @@ class ProjectManager:
             with open(config_file, 'w') as f:
                 # Try to get exclusive lock for writing
                 try:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    portalocker.lock(f.fileno(), portalocker.LOCK_EX | portalocker.LOCK_NB)
                     json.dump(config, f, indent=2)
-                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                    portalocker.unlock(f.fileno())
                 except OSError:
                     # If we can't get lock, skip updating last_accessed
                     pass

@@ -5,7 +5,7 @@ This module provides thread-safe, file-based storage for knowledge graphs and
 vulnerability hypotheses, allowing multiple agents to collaborate on analysis.
 """
 
-import fcntl
+import portalocker
 import hashlib
 import json
 import threading
@@ -47,7 +47,7 @@ class ConcurrentFileStore(ABC):
         
         while True:
             try:
-                fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                portalocker.lock(lock_file, portalocker.LOCK_EX | portalocker.LOCK_NB)
                 return lock_file
             except OSError:
                 if time.time() - start_time > timeout:
@@ -58,7 +58,7 @@ class ConcurrentFileStore(ABC):
     def _release_lock(self, lock_file: Any):
         """Release file lock."""
         try:
-            fcntl.flock(lock_file, fcntl.LOCK_UN)
+            portalocker.unlock(lock_file)
             lock_file.close()
             if self.lock_path.exists():
                 self.lock_path.unlink()
