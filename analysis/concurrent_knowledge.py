@@ -50,10 +50,11 @@ class ConcurrentFileStore(ABC):
             try:
                 portalocker.lock(lock_file, portalocker.LOCK_EX | portalocker.LOCK_NB)
                 return lock_file
-            except OSError:
+            except (OSError, portalocker.exceptions.LockException) as exc:
+                # Retry until timeout to handle concurrent access across processes
                 if time.time() - start_time > timeout:
                     lock_file.close()
-                    raise TimeoutError(f"Lock timeout: {self.file_path}")
+                    raise TimeoutError(f"Lock timeout: {self.file_path}") from exc
                 time.sleep(0.05)
     
     def _release_lock(self, lock_file: Any):
