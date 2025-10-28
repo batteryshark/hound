@@ -33,11 +33,14 @@ models:
     # model: gpt-4.1 
     # max_context: 1000000
 
-    provider: gemini
-    model: gemini-2.5-pro
+    provider: openai
+    model: gpt-4.1
     max_context: 1000000
     thinking_enabled: true
     thinking_budget: -1
+    pricing:
+      input_cost: 2.00   # $2.00 per 1M input tokens
+      output_cost: 8.00  # $8.00 per 1M output tokens
     
   # Scout/agent model for exploration
   scout:
@@ -45,6 +48,9 @@ models:
     model: gpt-5-mini
     max_context: 256000
     # reasoning_effort: low
+    pricing:
+      input_cost: 0.25   # $0.25 per 1M input tokens
+      output_cost: 2.00  # $2.00 per 1M output tokens
   
   # Strategic thinking model
   # For planning and reasoning about security issues
@@ -54,12 +60,18 @@ models:
     max_context: 256000
     plan_reasoning_effort: medium
     hypothesize_reasoning_effort: high
+    pricing:
+      input_cost: 1.25   # $1.25 per 1M input tokens
+      output_cost: 10.00 # $10.00 per 1M output tokens
   
   # Lightweight utility model for quick, low-cost tasks (e.g., dedup)
   lightweight:
     provider: openai
     model: gpt-4o-mini
     # No large context or special reasoning required
+    pricing:
+      input_cost: 0.15   # $0.15 per 1M input tokens
+      output_cost: 0.60  # $0.60 per 1M output tokens
   
   # QA model
   finalize:
@@ -68,12 +80,18 @@ models:
     reasoning_effort: high
     # No max_context specified - will use global default
     # reasoning_effort: medium  # Options: low, medium, high (GPT-5 models only)
+    pricing:
+      input_cost: 1.25   # $1.25 per 1M input tokens
+      output_cost: 10.00 # $10.00 per 1M output tokens
   
   # Reporting model
   reporting:
     provider: openai
     model: gpt-4o
     # No max_context specified - will use global default
+    pricing:
+      input_cost: 2.50   # $2.50 per 1M input tokens
+      output_cost: 10.00 # $10.00 per 1M output tokens
 
 # Global context settings (used when model doesn't specify max_context)
 context:
@@ -96,3 +114,14 @@ retries:
 # - Discovery phase and building iterations use different context limits
 # - Models without max_context use the global context.max_tokens value
 # - Token counting is done using the specific model for accuracy
+#
+# Pricing Configuration:
+# - Each model can have optional pricing info for cost tracking
+# - Simple pricing: input_cost and output_cost per 1M tokens (default unit)
+# - Tiered pricing: list of tiers with threshold and costs (for volume discounts)
+# - Costs are in USD per 1M tokens by default (unit: 1000000)
+# - Models without pricing configured will still track tokens but show $0.00 cost
+# - Check provider pricing pages for current rates:
+#   OpenAI: https://openai.com/api/pricing/
+#   Anthropic: https://www.anthropic.com/pricing
+#   Google AI: https://ai.google.dev/pricing
