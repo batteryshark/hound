@@ -11,6 +11,7 @@ from .deepseek_provider import DeepSeekProvider
 from .gemini_provider import GeminiProvider
 from .mock_provider import MockProvider
 from .openai_provider import OpenAIProvider
+from .pricing import PricingCalculator
 from .token_tracker import get_token_tracker
 from .xai_provider import XAIProvider
 
@@ -42,6 +43,9 @@ class UnifiedLLMClient:
         self.cfg = cfg
         self.profile = profile
         self.debug_logger = debug_logger
+        
+        # Initialize pricing calculator
+        self.pricing_calculator = PricingCalculator(cfg)
         
         # Get model configuration for this profile with backward-compatible mapping
         models_cfg = cfg.get("models", {}) if isinstance(cfg, dict) else {}
@@ -161,12 +165,29 @@ class UnifiedLLMClient:
                 token_usage = self.provider.get_last_token_usage()
                 if token_usage:
                     tracker = get_token_tracker()
+                    model_key = f"{self.provider.provider_name}:{self.model}"
+                    
+                    # Get cumulative tokens for tiered pricing
+                    cumulative_input, cumulative_output = tracker.get_cumulative_tokens(model_key)
+                    
+                    # Calculate cost
+                    input_cost, output_cost, total_cost = self.pricing_calculator.calculate_cost(
+                        model_key=model_key,
+                        input_tokens=token_usage.get('input_tokens', 0),
+                        output_tokens=token_usage.get('output_tokens', 0),
+                        cumulative_input_tokens=cumulative_input,
+                        cumulative_output_tokens=cumulative_output
+                    )
+                    
                     tracker.track_usage(
                         provider=self.provider.provider_name,
                         model=self.model,
                         input_tokens=token_usage.get('input_tokens', 0),
                         output_tokens=token_usage.get('output_tokens', 0),
-                        profile=self.profile
+                        profile=self.profile,
+                        input_cost=input_cost,
+                        output_cost=output_cost,
+                        total_cost=total_cost
                     )
             
             return response
@@ -208,12 +229,29 @@ class UnifiedLLMClient:
                 token_usage = self.provider.get_last_token_usage()
                 if token_usage:
                     tracker = get_token_tracker()
+                    model_key = f"{self.provider.provider_name}:{self.model}"
+                    
+                    # Get cumulative tokens for tiered pricing
+                    cumulative_input, cumulative_output = tracker.get_cumulative_tokens(model_key)
+                    
+                    # Calculate cost
+                    input_cost, output_cost, total_cost = self.pricing_calculator.calculate_cost(
+                        model_key=model_key,
+                        input_tokens=token_usage.get('input_tokens', 0),
+                        output_tokens=token_usage.get('output_tokens', 0),
+                        cumulative_input_tokens=cumulative_input,
+                        cumulative_output_tokens=cumulative_output
+                    )
+                    
                     tracker.track_usage(
                         provider=self.provider.provider_name,
                         model=self.model,
                         input_tokens=token_usage.get('input_tokens', 0),
                         output_tokens=token_usage.get('output_tokens', 0),
-                        profile=self.profile
+                        profile=self.profile,
+                        input_cost=input_cost,
+                        output_cost=output_cost,
+                        total_cost=total_cost
                     )
             
             return response

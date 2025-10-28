@@ -847,7 +847,25 @@ class AutonomousAgent:
             model = last.get('model') or self.llm.model
             itok = int(last.get('input_tokens') or 0)
             otok = int(last.get('output_tokens') or 0)
-            return f"Context {used}/{limit} tok ({pct}%) — Last call {prov}:{model} in={itok} out={otok}"
+            cost = float(last.get('total_cost') or 0.0)
+            
+            # Build base message with tokens
+            msg = f"Context {used}/{limit} tok ({pct}%) — Last call {prov}:{model} in={itok} out={otok}"
+            
+            # Add cost if available
+            if cost > 0:
+                msg += f" cost=${cost:.4f}"
+                
+            # Add session total cost if available
+            try:
+                summary = get_token_tracker().get_summary()
+                total_cost = summary.get('total_usage', {}).get('total_cost', 0.0)
+                if total_cost > 0:
+                    msg += f" (session: ${total_cost:.4f})"
+            except Exception:
+                pass
+                
+            return msg
         except Exception:
             return f"Context {used}/{limit} tok ({pct}%)"
 

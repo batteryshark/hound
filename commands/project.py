@@ -1110,6 +1110,17 @@ def _show_session_details(sessions_dir: Path, session_id: str, output_json: bool
         console.print(f"  Total Output Tokens: {total.get('output_tokens', 0):,}")
         console.print(f"  Total Tokens: {total.get('total_tokens', 0):,}")
         console.print(f"  Total API Calls: {total.get('call_count', 0)}")
+        
+        # Show costs if available
+        total_cost = total.get('total_cost', 0.0)
+        if total_cost > 0:
+            console.print(f"\n[bold green]Total Cost: ${total_cost:.4f}[/bold green]")
+            input_cost = total.get('input_cost', 0.0)
+            output_cost = total.get('output_cost', 0.0)
+            if input_cost > 0 or output_cost > 0:
+                console.print(f"  Input Cost: ${input_cost:.4f}")
+                console.print(f"  Output Cost: ${output_cost:.4f}")
+        
         by_model = token_usage.get('by_model', {})
         if by_model:
             console.print("\n  [bold]By Model:[/bold]")
@@ -1119,6 +1130,9 @@ def _show_session_details(sessions_dir: Path, session_id: str, output_json: bool
                 console.print(f"      Input: {usage.get('input_tokens', 0):,}")
                 console.print(f"      Output: {usage.get('output_tokens', 0):,}")
                 console.print(f"      Total: {usage.get('total_tokens', 0):,}")
+                model_cost = usage.get('total_cost', 0.0)
+                if model_cost > 0:
+                    console.print(f"      Cost: ${model_cost:.4f}")
 
     cov = data.get('coverage', {}) or {}
     if cov:

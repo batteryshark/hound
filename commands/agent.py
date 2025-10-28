@@ -2856,9 +2856,32 @@ class AgentRunner:
             pass
 
         # Finalize session tracker with final token usage
-        self.session_tracker.update_token_usage(token_tracker.get_summary())
+        token_summary = token_tracker.get_summary()
+        self.session_tracker.update_token_usage(token_summary)
         final_status = 'interrupted' if 'time_up' in locals() and time_up else 'completed'
         self.session_tracker.finalize(status=final_status)
+        
+        # Show cost summary if available
+        total_usage = token_summary.get('total_usage', {})
+        total_cost = total_usage.get('total_cost', 0.0)
+        if total_cost > 0:
+            console.print("\n[bold green]═══ COST SUMMARY ═══[/bold green]")
+            console.print(f"  Total Cost: ${total_cost:.4f}")
+            input_cost = total_usage.get('input_cost', 0.0)
+            output_cost = total_usage.get('output_cost', 0.0)
+            if input_cost > 0 or output_cost > 0:
+                console.print(f"  Input Cost: ${input_cost:.4f}")
+                console.print(f"  Output Cost: ${output_cost:.4f}")
+            
+            # Show per-model breakdown
+            by_model = token_summary.get('by_model', {})
+            if by_model:
+                console.print("\n  [bold]Cost by Model:[/bold]")
+                for model, usage in by_model.items():
+                    model_cost = usage.get('total_cost', 0.0)
+                    if model_cost > 0:
+                        calls = usage.get('call_count', 0)
+                        console.print(f"    {model}: ${model_cost:.4f} ({calls} calls)")
         
         # Show final coverage
         coverage_stats = self.session_tracker.get_coverage_stats()
